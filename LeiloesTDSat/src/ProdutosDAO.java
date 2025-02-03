@@ -23,7 +23,7 @@ public class ProdutosDAO {
     public void cadastrarProduto(ProdutosDTO produto) {
 
         conn = new conectaDAO().connectDB();
-        
+
         String sql = "INSERT INTO produtos(nome, valor, status) VALUES "
                 + "(?, ?, ?)";
         try {
@@ -39,13 +39,13 @@ public class ProdutosDAO {
     }
 
     public ArrayList<ProdutosDTO> listarProdutos() {
-     
+
         try {
             conn = conectaDAO.connectDB();
             String sql = "SELECT id, nome, valor, status FROM produtos";
             prep = conn.prepareStatement(sql);
             resultset = prep.executeQuery();
-            
+
             while (resultset.next()) {
                 ProdutosDTO produto = new ProdutosDTO();
                 produto.setId(resultset.getInt("id"));
@@ -59,15 +59,40 @@ public class ProdutosDAO {
             System.out.println("Erro ao listar produtos: " + e.getMessage());
         } finally {
             try {
-                if (resultset != null) resultset.close();
-                if (prep != null) prep.close();
-                if (conn != null) conn.close();
+                if (resultset != null) {
+                    resultset.close();
+                }
+                if (prep != null) {
+                    prep.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (Exception ex) {
                 System.out.println("Erro ao fechar conexões: " + ex.getMessage());
             }
         }
-        
+
         return listagem;
+    }
+
+    public void venderProduto(int idProduto) {
+        conn = conectaDAO.connectDB();
+        String sql = "UPDATE produtos SET status = 'Vendido' WHERE id = ?";
+
+        try ( PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idProduto);
+            int rowsUpdated = stmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                System.out.println("Produto vendido com sucesso.");
+            } else {
+                System.out.println("Erro ao vender o produto.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
